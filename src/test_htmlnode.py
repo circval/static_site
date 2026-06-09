@@ -1,5 +1,5 @@
 import unittest
-from htmlnode import HTMLNode, LeafNode
+from htmlnode import HTMLNode, LeafNode, ParentNode
 
 class HTMLTestNode(unittest.TestCase):
 	def test_1(self):
@@ -25,5 +25,42 @@ class HTMLTestNode(unittest.TestCase):
 		node = LeafNode("q", "Hello, world!")
 		self.assertNotEqual(node.to_html(), "<p>Hello, world!</p>")
   
+	def test_parent_to_html_with_children(self):
+		child_node = LeafNode("span", "child")
+		parent_node = ParentNode("div", [child_node])
+		self.assertEqual(parent_node.to_html(), "<div><span>child</span></div>")
+	def test_to_html_with_grandchildren(self):
+		grandchild_node = LeafNode("b", "grandchild")
+		child_node = ParentNode("span", [grandchild_node])
+		parent_node = ParentNode("div", [child_node])
+		self.assertEqual(
+			parent_node.to_html(),
+			"<div><span><b>grandchild</b></span></div>",
+		)
+	def test_to_html_with_greatgrandchildren(self):
+		greatgrandchild_node = LeafNode("c", "greatgrandchild")
+		grandchild_node = ParentNode("table", [greatgrandchild_node])
+		child_node = ParentNode("span", [grandchild_node])
+		parent_node = ParentNode("div", [child_node])
+		self.assertEqual(
+			parent_node.to_html(),
+			"<div><span><table><c>greatgrandchild</c></table></span></div>",
+		)
+	def test_to_html_with_2children(self):
+		child_node1 = LeafNode("par", "child1")
+		child_node2 = LeafNode("span", "child2")
+		parent_node = ParentNode("div", [child_node1, child_node2])
+		self.assertEqual(
+			parent_node.to_html(),
+			"<div><par>child1</par><span>child2</span></div>",
+		)
+	def test_to_html_with_2children(self):
+		child_node1 = LeafNode("par", "child1")
+		child_node2 = LeafNode("span", "child2")
+		parent_node = ParentNode("div", [child_node1, child_node2])
+		self.assertNotEqual(
+			parent_node.to_html(),
+			"<div><span><par>child1child2</par></span></div>",
+		)
 if __name__ == "__main__":
 		unittest.main()
