@@ -1,5 +1,6 @@
 import unittest
 from textnode import TextNode, TextType, text_node_to_html_node
+from textnodesplitter import split_nodes_delimiter
 
 class TestTextNode(unittest.TestCase):
     def test_eq(self):
@@ -39,5 +40,23 @@ class TestTextNode(unittest.TestCase):
         html_node = text_node_to_html_node(node)
         self.assertNotEqual(html_node.tag, None)
         self.assertEqual(html_node.value, "", "src" "alt")
+        
+    def test_node_split1(self):
+        node = TextNode("This is text with a `code block` word", TextType.TEXT)
+        new_nodes = split_nodes_delimiter([node], "`", TextType.CODE)
+        self.assertEqual(new_nodes, [TextNode("This is text with a ", TextType.TEXT), TextNode("code block", TextType.CODE), TextNode(" word", TextType.TEXT),])
+    def test_node_split2(self):
+        node = TextNode("This is text with a bold **word**", TextType.TEXT)
+        new_nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
+        self.assertEqual(new_nodes, [TextNode("This is text with a bold ", TextType.TEXT), TextNode("word", TextType.BOLD),])
+    def test_node_split3(self):
+        node = TextNode("This is text with a bold **word**", TextType.TEXT)
+        new_nodes = split_nodes_delimiter([node], "**", TextType.CODE)
+        self.assertNotEqual(new_nodes, [TextNode("This is text with a bold ", TextType.TEXT), TextNode("word", TextType.BOLD),])
+    def test_node_split4(self):
+        node = TextNode("_This_ is text with an italic word", TextType.TEXT)
+        new_nodes = split_nodes_delimiter([node], "_", TextType.ITALIC)
+        self.assertEqual(new_nodes, [TextNode("This", TextType.ITALIC), TextNode(" is text with an italic word", TextType.TEXT),])
+        
 if __name__ == "__main__":
         unittest.main()
