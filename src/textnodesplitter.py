@@ -24,3 +24,49 @@ def extract_markdown_images(text):
     
 def extract_markdown_links(text):
     return re.findall(r"\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
+
+def split_nodes_image(old_nodes: list[TextNode]) -> list[TextNode]:
+    new_nodes = []
+    for node in old_nodes:
+        split_node = extract_markdown_images(node.text)
+        if len(split_node) == 0:
+            new_nodes.append(node)
+            continue
+        current_text = node.text
+        for alt, url in split_node:
+            text_split = current_text.split(f"![{alt}]({url})", 1)
+            if text_split[0] != "":
+                new_nodes.append(TextNode(text_split[0], TextType.TEXT))
+            new_nodes.append(TextNode(alt, TextType.IMAGE, url))
+            current_text = text_split[1]
+        if current_text == "":
+            continue
+        else:
+            new_nodes.append(TextNode(current_text, TextType.TEXT))
+    return new_nodes
+
+def split_nodes_link(old_nodes: list[TextNode]) -> list[TextNode]:
+    new_nodes = []
+    for node in old_nodes:
+        split_node = extract_markdown_links(node.text)
+        if len(split_node) == 0:
+            new_nodes.append(node)
+            continue
+        current_text = node.text
+        for link_text, url in split_node:
+            text_split = current_text.split(f"[{link_text}]({url})", 1)
+            if text_split[0] != "":
+                new_nodes.append(TextNode(text_split[0], TextType.TEXT))
+            new_nodes.append(TextNode(link_text, TextType.LINK, url))
+            current_text = text_split[1]
+        if current_text == "":
+            continue
+        else:
+            new_nodes.append(TextNode(current_text, TextType.TEXT))
+    return new_nodes
+
+node = TextNode(
+        "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and another ![second image](https://i.imgur.com/3elNhQu.png)",
+        TextType.TEXT,
+    )
+split_nodes_image([node])
