@@ -78,4 +78,4 @@ def text_to_textnodes(text):
     italic_nodes = split_nodes_delimiter(bold_nodes, "_", TextType.ITALIC)
     new_nodes = split_nodes_delimiter(italic_nodes, "`", TextType.CODE)
     image_split = split_nodes_image(new_nodes)
-    print(split_nodes_link(image_split))
+    return split_nodes_link(image_split)
